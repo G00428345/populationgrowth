@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ireland's Population Growth</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            background: linear-gradient(to right, #6dd5ed, #2193b0);
+            color: #fff;
+            padding: 20px;
+        }
+        h1 {
+            color: #ffdd57;
+        }
+        canvas { 
+            max-width: 900px; 
+            width: 100%;
+            height: 500px;
+            margin: 20px auto; 
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        button {
+            background-color: #ffdd57;
+            color: black;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #ffcc00;
+        }
+    </style>
+</head>
+<body>
+    <h1>Ireland's Population Growth</h1>
+    <canvas id="populationChart"></canvas>
+    
+    <h2>Population Growth Calculator</h2>
+    <p>Enter two years to calculate the percentage of population growth:</p>
+    <input type="number" id="startYear" placeholder="Start Year" min="1950" max="2025">
+    <input type="number" id="endYear" placeholder="End Year" min="1950" max="2025">
+    <button onclick="calculateGrowth()">Calculate</button>
+    <p id="growthResult"></p>
+    
+    <h2>Quick Quiz</h2>
+    <p>What was Ireland's population in 2000?</p>
+    <button onclick="checkAnswer(3.5, 3.768950, 'quizResult1')">3.5 million</button>
+    <button onclick="checkAnswer(3.768950, 3.768950, 'quizResult1')">3.77 million</button>
+    <button onclick="checkAnswer(4.0, 3.768950, 'quizResult1')">4.0 million</button>
+    <p id="quizResult1"></p>
+    
+    <p>In what year did Ireland's population first exceed 4 million?</p>
+    <button onclick="checkAnswer(2000, 2006, 'quizResult2')">2000</button>
+    <button onclick="checkAnswer(2006, 2006, 'quizResult2')">2006</button>
+    <button onclick="checkAnswer(2010, 2006, 'quizResult2')">2010</button>
+    <p id="quizResult2"></p>
+    
+    <p>What was the approximate population growth from 1990 to 2000?</p>
+    <button onclick="checkAnswer('10.2%', '10.2%', 'quizResult3')">10.2%</button>
+    <button onclick="checkAnswer('8.1%', '10.2%', 'quizResult3')">8.1%</button>
+    <button onclick="checkAnswer('6.5%', '10.2%', 'quizResult3')">6.5%</button>
+    <p id="quizResult3"></p>
+    
+    <script>
+        const years = [
+            1950, 1960, 1970, 1980, 1990, 2000, 2010, 2020, 2025
+        ];
+        const population = [
+            2.906599, 2.811067, 2.937637, 3.391387, 3.485374, 3.768950, 4.524585, 4.946119, 5.120867
+        ];
+        
+        const ctx = document.getElementById('populationChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: years,
+                datasets: [{
+                    label: 'Population (millions)',
+                    data: population,
+                    backgroundColor: 'rgba(40, 167, 69, 0.7)',
+                    borderColor: '#28a745',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Population Growth (millions)'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Year'
+                        }
+                    }
+                }
+            }
+        });
+
+        function checkAnswer(userAnswer, correctAnswer, resultId) {
+            document.getElementById(resultId).innerText = userAnswer === correctAnswer ? 'Correct!' : 'Incorrect!';
+        }
+
+        function calculateGrowth() {
+            const startYear = parseInt(document.getElementById('startYear').value);
+            const endYear = parseInt(document.getElementById('endYear').value);
+            if (startYear < 1950 || endYear > 2025 || startYear >= endYear) {
+                document.getElementById('growthResult').innerText = "Invalid input. Please enter valid years between 1950 and 2025.";
+                return;
+            }
+            
+            const startPop = interpolatePopulation(startYear);
+            const endPop = interpolatePopulation(endYear);
+            const growth = ((endPop - startPop) / startPop) * 100;
+            document.getElementById('growthResult').innerText = `Population growth from ${startYear} to ${endYear}: ${growth.toFixed(2)}%`;
+        }
+
+        function interpolatePopulation(year) {
+            for (let i = 0; i < years.length - 1; i++) {
+                if (year >= years[i] && year <= years[i + 1]) {
+                    const ratio = (year - years[i]) / (years[i + 1] - years[i]);
+                    return population[i] + ratio * (population[i + 1] - population[i]);
+                }
+            }
+            return null;
+        }
+    </script>
+</body>
+</html>
+
